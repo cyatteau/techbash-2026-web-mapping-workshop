@@ -1,0 +1,22 @@
+* { box-sizing: border-box; }
+html, body { height: 100%; margin: 0; }
+body {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  font-family: system-ui, sans-serif;
+  color: #172033;
+}
+.lab-header { padding: 1rem 1.25rem; border-bottom: 1px solid #cbd5e1; }
+.eyebrow { margin: 0; font-size: 0.8rem; font-weight: 700; color: #075985; }
+h1 { margin: 0.35rem 0; font-size: 1.5rem; }
+p { margin: 0.4rem 0; }
+select { padding: 0.45rem; font: inherit; max-width: 100%; }
+select:focus-visible { outline: 3px solid #0369a1; outline-offset: 3px; }
+#map { min-height: 300px; width: 100%; }
+#map-status { color: #9f1239; }
+.maplibregl-popup-content { max-width: 290px; overflow-wrap: anywhere; }
+.maplibregl-popup-content h2 { font-size: 1.1rem; margin: 0.25rem 0; }
+@media (max-width: 600px) {
+  body { height: auto; min-height: 100%; grid-template-rows: auto 65vh; }
+  .lab-header { padding: 0.75rem; }
+}
