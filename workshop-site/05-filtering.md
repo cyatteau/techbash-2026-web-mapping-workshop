@@ -13,6 +13,8 @@ By the end of this section, you'll have:
 - synchronized map and sidebar filtering
 - selection reset when the filter changes
 
+> **During the live workshop:** complete the required **Your Turn** sections and checkpoint first. Sections labeled **Optional** or **Make It Yours** are for extra time if you finish early.
+
 ---
 
 # Starting Point
@@ -23,7 +25,15 @@ Start from:
 checkpoints/04-selection
 ```
 
-You should already have synchronized marker and card selection.
+You should already have synchronized marker and card selection working in both directions.
+
+Before continuing, verify:
+
+```text
+marker click → matching card updates
+
+card click → matching marker updates
+```
 
 In this exercise, we'll edit:
 
@@ -32,6 +42,10 @@ index.html
 styles.css
 main.js
 ```
+
+We are **not fetching the GeoJSON again**.
+
+The complete dataset stays in `state.places`. Filtering will derive the subset we want to display.
 
 ---
 
@@ -44,12 +58,22 @@ state.places + state.category
               ↓
        visibleFeatures()
               ↓
-        map + sidebar
+           render()
+              ↓
+      map + sidebar + status
 ```
 
 The important idea:
 
-> The map and sidebar do not filter themselves separately. They both receive the same filtered array. <button class="discovery-token" type="button" data-discovery-id="state-keeper" aria-label="Hidden discovery" title="Hmm...">🔎</button>
+> Store the source data. Derive what is visible.
+
+`state.places` remains the complete dataset.
+
+`state.category` stores the user's current choice.
+
+`visibleFeatures()` combines those values to determine what the app should display right now.
+
+The map and sidebar do **not** filter themselves separately. They both receive the same filtered array. <button class="discovery-token" type="button" data-discovery-id="state-keeper" aria-label="Hidden discovery" title="Hmm...">🔎</button>
 
 ---
 
@@ -97,7 +121,7 @@ In `index.html`, add this after the status and before the place list:
 
 ```html
 <div class="filter">
-  <label for="category-filter" class="filter__label"> Category </label>
+  <label for="category-filter" class="filter__label">Category</label>
 
   <select id="category-filter" class="filter__select">
     <option value="all">All categories</option>
@@ -157,6 +181,10 @@ Then add the filter element to your DOM references:
 const categoryFilter = document.querySelector("#category-filter");
 ```
 
+`state.places` still holds all 21 features.
+
+`state.category` tells us which subset should currently be visible.
+
 ---
 
 # 🛠️ Your Turn 4 - Create `visibleFeatures()`
@@ -180,6 +208,19 @@ function visibleFeatures() {
 ```
 
 This derives the current display list without replacing the original dataset.
+
+Think of it like this:
+
+```text
+source state
+state.places = all 21 places
+
+user choice
+state.category = "Residential"
+
+derived data
+visibleFeatures() = only Residential places
+```
 
 ---
 
@@ -217,7 +258,17 @@ function render() {
 }
 ```
 
-Now one function updates the map, sidebar, and status from the current state.
+One function now updates every view that depends on the current visible feature set:
+
+```text
+visible features
+      ↓
+   render()
+   /   |   \
+ map  list  status
+```
+
+Because the same `features` array goes to the map and sidebar, they stay synchronized.
 
 ---
 
@@ -256,7 +307,13 @@ async function loadPlaces() {
 }
 ```
 
-We still fit the map only after the initial load.
+We fit the map after the **initial load**.
+
+Notice that `fitMapToPlaces()` is **not** inside `render()`.
+
+That is intentional.
+
+Filtering should update which markers and cards are visible without constantly moving the user's map view.
 
 ---
 
@@ -303,23 +360,53 @@ categoryFilter.addEventListener("change", (event) => {
 });
 ```
 
+We clear selection before rendering because the previously selected place might no longer be visible after the filter changes.
+
+`render()` then rebuilds the visible map layers and sidebar cards from the new feature subset.
+
 Save and refresh.
 
 ---
 
 # 🎉 Checkpoint
 
-Choose a category.
+Try these filters:
 
-You should see:
+```text
+All categories
+→ 21 historic places
 
-- fewer markers
-- fewer cards
-- updated count
-- map and sidebar showing the same places
-- previous selection cleared
+Education & Religion
+→ 4 historic places
 
-Return to `All categories` and everything should come back.
+Residential
+→ 5 historic places
+
+All categories
+→ 21 historic places
+```
+
+For every choice, verify:
+
+- the marker count changes
+- the card list changes
+- the status count changes
+- the map and sidebar represent the same subset
+- the previous selection is cleared
+
+Then select a marker or card **after filtering**.
+
+Selection should still work because `renderMap()` rebuilt `layerById` for the currently visible features.
+
+Also notice what does **not** happen:
+
+```text
+filter change
+≠ new GeoJSON request
+≠ automatic map refit
+```
+
+The app already owns the full dataset in `state.places`.
 
 ---
 
@@ -330,7 +417,7 @@ Return to `All categories` and everything should come back.
   "title": "In One Sentence",
   "prompt": "Why do we call the same render() function for both initial loading and filter changes?",
   "buttonLabel": "Reveal one possible answer",
-  "answer": "Because render() redraws every visible view from the application’s current state."
+  "answer": "Because render() redraws every visible view from the application's current state."
 }
 ```
 
@@ -362,14 +449,17 @@ Want more filtering ideas? Find them under **Explore More → ✨ Make It Yours*
 
 Verify:
 
-- [ ] All categories shows every place.
+- [ ] All categories shows 21 places.
+- [ ] Education & Religion shows 4 places.
+- [ ] Residential shows 5 places.
 - [ ] Choosing a category changes the map.
 - [ ] Choosing a category changes the sidebar.
 - [ ] The map and sidebar show the same subset.
 - [ ] The status count updates.
-- [ ] Returning to all restores every place.
+- [ ] Returning to all restores all 21 places.
 - [ ] Changing the filter clears selection.
 - [ ] Selection still works after filtering.
+- [ ] Filtering does not fetch the GeoJSON again.
 - [ ] Filtering does not unnecessarily refit the map.
 - [ ] There are no unexpected errors from your application code.
 
@@ -379,6 +469,6 @@ If something isn't working, use the completed checkpoint below to recover and ke
 
 # Next
 
-Continue to **06 - Styling, Performance, and Usability** using the Next button below.
+Continue to **06 - Styling, Performance, and Usability** using the **Next** button below.
 
 We'll improve the app's appearance, performance, and behavior outside the happy path.
