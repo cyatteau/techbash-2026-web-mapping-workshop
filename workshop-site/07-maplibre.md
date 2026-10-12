@@ -6,7 +6,11 @@ Display the same Mount Pocono and Monroe County historic places with MapLibre GL
 
 By the end, you will have a separate app with category-colored circles, popups, category filtering, a place count, and an initial view fitted to all 21 places.
 
-Allow about **30 to 35 minutes**. Keep your completed Leaflet app in `workshop-work`. This lab uses a separate `maplibre-work` folder and does not require the optional module refactor.
+Plan on about **26 to 30 minutes** for the live workshop.
+
+Keep your completed Leaflet app in `workshop-work`. This lab uses a separate `maplibre-work` folder and does not require the optional module refactor.
+
+> **During the live workshop:** complete the required lab first. If you fall behind, use the completed example in `labs/maplibre/` with your own `config.js` so we can protect time for the wrap-up.
 
 ---
 
@@ -24,7 +28,9 @@ Allow about **30 to 35 minutes**. Keep your completed Leaflet app in `workshop-w
 
 The geometry stays in GeoJSON's longitude, latitude order. We keep the same names, IDs, descriptions, and categories. Our rendering and event APIs change.
 
-This focused lab includes map clicks, popups, and filtering. Your Leaflet app remains the example of synchronized map and sidebar selection.
+This focused lab includes map clicks, popups, filtering, and a place count.
+
+It does **not** rebuild the full synchronized sidebar from the Leaflet app. The goal is to compare how the two mapping libraries handle the same data and mapping jobs.
 
 ```activity
 {
@@ -53,7 +59,9 @@ This focused lab includes map clicks, popups, and filtering. Your Leaflet app re
 4. Create `maplibre-work/data/cities/`.
 5. Copy the shared `data/cities/mount-pocono.geojson` into that new folder.
 
-Your folder should contain:
+Do **not** replace or rename `workshop-work`. Keep both apps available.
+
+Your new folder should contain:
 
 ```text
 maplibre-work/
@@ -292,7 +300,16 @@ categoryFilter.addEventListener("change", (event) => {
 initializeMap();
 ```
 
-Save and refresh. You should see the ArcGIS Light Gray basemap, 21 colored circles, and an enabled category filter.
+Save and refresh.
+
+Your first finish line is:
+
+- ArcGIS Light Gray basemap
+- 21 colored circles
+- an enabled category filter
+- a status count of 21 historic places
+
+If you do not see those four things, stop here and recover before testing filtering.
 
 The MapLibre ArcGIS plugin applies the ArcGIS style and handles its Esri and data attribution. The library imports use pinned versions so everyone starts with the same dependencies.
 
@@ -314,6 +331,22 @@ The dataset covers surrounding Monroe County too. Fitting its bounds should show
 
 The source keeps the full dataset. `map.setFilter()` controls which features the layer displays. `visibleFeatures()` derives the count from the same category in application state.
 
+The key pattern is:
+
+```text
+GeoJSON source
+= all 21 features
+
+layer filter
+= what the map draws
+
+state.category
+= the application choice
+
+visibleFeatures()
+= the count shown in the UI
+```
+
 Popup text is built with DOM nodes and `textContent`, so place descriptions are displayed as text.
 
 ```activity
@@ -329,9 +362,17 @@ Popup text is built with DOM nodes and `textContent`, so place descriptions are 
 
 ---
 
-# Compare With Leaflet
+# Quick Compare With Leaflet
 
-Open your Leaflet app and MapLibre app in separate tabs. Compare how they load the same data, style categories, open popups, and filter features.
+Open your Leaflet app and MapLibre app in separate tabs.
+
+Spend a minute comparing how they do the same jobs:
+
+- create the map
+- supply GeoJSON
+- draw and style points
+- open popups
+- filter visible places
 
 The Leaflet app also includes sidebar cards and synchronized selection. Building those in MapLibre would still be application work: preserve shared state and connect its IDs to map events and DOM controls.
 
@@ -362,6 +403,8 @@ Use real data and target devices when comparing performance. Twenty-one points c
 - [ ] Education & Religion shows 4 places and Residential shows 5.
 - [ ] Filtering changes the map and count without refetching GeoJSON.
 - [ ] There are no unexpected application errors in the Console.
+- [ ] My Leaflet app is still intact in `workshop-work`.
+- [ ] I can explain at least one API difference between the Leaflet and MapLibre versions.
 
 The completed recovery example is **labs/maplibre/**. Copy your own `config.js` into it before opening it, or copy its files into `maplibre-work` while keeping your existing key.
 
