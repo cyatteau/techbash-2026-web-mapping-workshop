@@ -10,42 +10,44 @@ By the end of this section, you'll be able to:
 - recognize points, lines, polygons, and GeoJSON features
 - read coordinates in the correct order
 - explain the difference between raster and vector tiles
-- describe when you might choose Leaflet, MapLibre GL JS, or OpenLayers
+- describe when you might evaluate Leaflet, MapLibre GL JS, or OpenLayers
 
-Allow about **15 to 20 minutes** for this lesson.
+> **This section is instructor-led.** Keep this page open as a reference while we walk through the concepts together. Complete the quick checks when prompted, then inspect one real GeoJSON feature before we begin Step 01.
 
-You do not need a GIS background. Keep your project open, but there are no application code changes in this lesson.
+Plan on about **10 to 12 minutes together**, including the short feature-reading activity.
+
+There are **no application code changes** in this lesson. Keep your prepared `workshop-work/` folder open and ready for Step 01.
 
 ---
 
-# 👀 Watch First - What Makes Up a Web Map?
+# What Makes Up a Web Map?
 
 Our City Explorer combines several pieces:
 
-| Piece                    | Its job                                                | Our workshop example                        |
-| ------------------------ | ------------------------------------------------------ | ------------------------------------------- |
-| Mapping library          | Displays the map and handles interactions              | Leaflet, then MapLibre GL JS                |
-| Basemap                  | Provides geographic context such as streets and labels | OpenStreetMap tiles, then an ArcGIS basemap |
-| Application data         | Describes the places we want to explore                | Mount Pocono and Monroe County places in GeoJSON      |
-| Application UI and state | Coordinates cards, selection, and filtering            | Our HTML, CSS, and JavaScript               |
-| Location service         | Answers geographic requests                            | Geocoding in an optional extension          |
+| Piece | Its job | Our workshop example |
+| --- | --- | --- |
+| Mapping library | Displays the map and handles map interactions | Leaflet, then MapLibre GL JS |
+| Basemap | Provides geographic context such as streets and labels | OpenStreetMap tiles, then an ArcGIS basemap |
+| Application data | Describes the places we want to explore | Mount Pocono and Monroe County places in GeoJSON |
+| Application UI and state | Coordinates cards, selection, filtering, and status | Our HTML, CSS, and JavaScript |
+| Location service | Answers geographic requests | Geocoding in an optional extension |
 
-For example, selecting a sidebar card is application behavior. Moving the map to that place uses the mapping library. The streets behind the place come from the basemap.
+Selecting a sidebar card is application behavior. Moving the map to that place uses the mapping library. The streets and labels behind the place come from the basemap.
 
-**Choosing a library and choosing a data provider are separate decisions.**
+**Choosing a mapping library and choosing a data or service provider are separate decisions.**
 
-Leaflet does not automatically supply OpenStreetMap tiles. We choose a tile layer and add it to the map.
+Leaflet does not automatically supply a basemap. We create a Leaflet map, then choose which layers and services to add.
 
-OpenStreetMap is a geographic data project. The public tile endpoint used in our first exercise is one way to display a basemap made from that data.
+ArcGIS services can also be used with different mapping libraries. In the Leaflet app, Esri Leaflet plugins connect our Leaflet map to ArcGIS services. In the later MapLibre lab, MapLibre is the map library and the MapLibre ArcGIS plugin connects it to the ArcGIS basemap.
 
-ArcGIS provides services that can be used with different mapping libraries. **Esri Leaflet** provides plugins that connect Leaflet to ArcGIS services. Leaflet remains the map library when we add those plugins.
+Our local GeoJSON remains separate from the basemap in both apps.
 
-An open source library does not mean every connected service is free or requires no credentials. Follow the chosen provider's access, attribution, and usage requirements.
+An open source library does not mean every connected service is free or requires no credentials. Follow the access, attribution, and usage requirements of each provider you use.
 
 ```activity
 {
   "type": "reveal",
-  "eyebrow": "💬 Explain It",
+  "eyebrow": "💬 Quick Check",
   "title": "Same App, Different Basemap",
   "prompt": "If we replace the basemap, do we also need to replace our historic-place data and sidebar? Why?",
   "buttonLabel": "Reveal one possible answer",
@@ -55,25 +57,27 @@ An open source library does not mean every connected service is free or requires
 
 ---
 
-# Geographic Data: Shapes Plus Information
+# Geographic Data: Shape Plus Information
 
 A geographic feature combines **geometry** with **properties**.
 
-The geometry describes its location or shape. The properties describe what it represents.
+The geometry describes its location or shape. The properties describe what the feature represents.
 
-| Geometry   | What it represents                | Example             |
-| ---------- | --------------------------------- | ------------------- |
-| Point      | One position                      | A historic building |
-| LineString | A connected sequence of positions | A walking route     |
-| Polygon    | An area enclosed by a boundary    | A park boundary     |
+| Geometry | What it represents | Workshop example |
+| --- | --- | --- |
+| Point | One position | A historic-place marker |
+| LineString | A connected sequence of positions | A walking route |
+| Polygon | An enclosed area | A park boundary |
 
-In this workshop, each historic place is represented by a **Point**. A building has an area in the real world, but a point is enough for the interactions we are building.
+In this workshop, each historic place is represented by a **Point**.
 
-GeoJSON stores geographic features as JSON. A **FeatureCollection** contains a `features` array; each **Feature** has a `geometry` and can have descriptive `properties`.
+Some of these real-world places cover a larger area, but a representative point is enough for the interactions we are building. The geometry you choose should match what your application needs to communicate.
 
-Our dataset contains 21 National Register historic places in Mount Pocono and surrounding Monroe County. It uses National Park Service records and the workshop's five category labels. Districts and large properties use representative points.
+GeoJSON stores geographic features as JSON. A **FeatureCollection** contains a `features` array. Each **Feature** has a `geometry` and can also have descriptive `properties`.
 
-Here is a shortened version of its first feature:
+Our workshop dataset contains 21 historic places around Mount Pocono and Monroe County. It uses National Park Service records along with the workshop's five category labels. Districts and large properties use representative points.
+
+Here is a shortened version of the first feature:
 
 ```json
 {
@@ -95,29 +99,40 @@ Here is a shortened version of its first feature:
 }
 ```
 
-We will use the geometry to position a marker. We will use the properties to populate its popup and sidebar card.
+We will use the geometry to position a marker.
 
-The `properties.id` value is our application's identifier for connecting a place across the map, list, and selection state. GeoJSON does not require that particular property.
+We will use the properties to populate things such as:
+
+- the popup
+- the sidebar card
+- the category filter
+- selection state
+
+The `properties.id` value is our application's stable identifier for connecting the same place across the map, sidebar, and application state. GeoJSON does not require a property named `id` inside `properties`. That is part of our application's data contract.
 
 ---
 
 # Coordinates: Check the Order
 
-**Latitude** describes position north or south of the equator. **Longitude** describes position east or west of the prime meridian.
+**Latitude** describes position north or south of the equator.
+
+**Longitude** describes position east or west of the prime meridian.
 
 Mount Pocono is north of the equator and west of the prime meridian, so its latitude is positive and its longitude is negative.
 
-The same location can appear in different coordinate orders:
+The same location can appear in different coordinate orders depending on the API:
 
-| Where you use the coordinates              | Order                   | Approximate Mount Pocono center |
-| ------------------------------------------ | ----------------------- | ------------------------------ |
-| GeoJSON `geometry.coordinates`             | `[longitude, latitude]` | `[-75.3646, 41.1220]`          |
-| Leaflet `setView()` or `L.marker()` array  | `[latitude, longitude]` | `[41.1220, -75.3646]`          |
-| MapLibre `center` or marker position array | `[longitude, latitude]` | `[-75.3646, 41.1220]`          |
+| Where you use the coordinates | Order | Approximate Mount Pocono center |
+| --- | --- | --- |
+| Leaflet `setView()` or `L.marker()` array | `[latitude, longitude]` | `[41.1220, -75.3646]` |
+| GeoJSON `geometry.coordinates` | `[longitude, latitude]` | `[-75.3646, 41.1220]` |
+| MapLibre `center` or marker position array | `[longitude, latitude]` | `[-75.3646, 41.1220]` |
 
-**Keep GeoJSON in longitude, latitude order, even when displaying it with Leaflet.** Leaflet's GeoJSON layer handles the conversion for us.
+**Keep GeoJSON in longitude, latitude order, even when displaying it with Leaflet.**
 
-If you manually take coordinates from a GeoJSON feature and pass them to `L.marker()`, you must account for the different order yourself.
+Leaflet's GeoJSON layer understands GeoJSON coordinate order for us.
+
+If you manually take coordinates from a GeoJSON feature and pass them into a Leaflet method that expects a `LatLng`, you need to account for the different order yourself.
 
 ```activity
 {
@@ -140,43 +155,51 @@ If you manually take coordinates from a GeoJSON feature and pass them to `L.mark
     }
   ],
   "correct": "B",
-  "success": "Correct! GeoJSON positions start with longitude, then latitude. Keep this order when passing the feature to Leaflet's GeoJSON layer.",
+  "success": "Correct! GeoJSON positions start with longitude, then latitude.",
   "hint": "GeoJSON uses longitude first. Leaflet's direct marker and setView arrays use a different order."
 }
 ```
 
 ## Coordinate Systems and Projections
 
-A **coordinate reference system** tells us how to interpret coordinate values. Standard GeoJSON uses WGS 84 longitude and latitude in decimal degrees.
+A **coordinate reference system** tells us how to interpret coordinate values.
 
-A **map projection** determines how locations on the curved Earth are represented on a flat map. Many web basemaps use Web Mercator. It is convenient for tiled maps, but distorts area, especially near the poles.
+Standard GeoJSON uses WGS 84 longitude and latitude in decimal degrees.
 
-We will provide geographic coordinates and let the mapping library handle their display. You do not need to calculate a projection for this workshop.
+A **map projection** determines how locations on the curved Earth are represented on a flat map. Many web basemaps use Web Mercator. It is convenient for tiled maps, but it distorts area, especially near the poles.
 
-If a dataset contains large coordinate values measured in meters, do not assume they can be pasted into a GeoJSON position. Check its coordinate system first.
+For this workshop, we provide geographic coordinates and let the mapping library handle their display. You do not need to calculate a projection.
+
+If you encounter a dataset with large coordinate values measured in meters, do not assume those values can be pasted directly into a GeoJSON longitude and latitude position. Check the dataset's coordinate system first.
 
 ---
 
 # Raster, Vector, and Tiles
 
-**Raster data** represents information as pixels. A raster basemap tile is an image that already contains its visible colors and labels.
+**Raster data** represents information as pixels.
 
-**Vector data** represents shapes and their attributes. Vector tiles supply geographic data that a renderer draws using a style.
+A raster basemap tile is an image whose visible colors and labels have already been rendered.
 
-Tiles divide a map into smaller pieces so the browser can request the pieces needed for the current view and zoom.
+**Vector data** represents shapes and their attributes.
 
-| Data format or delivery method | What it contains                       | What to check                                                        |
-| ------------------------------ | -------------------------------------- | -------------------------------------------------------------------- |
-| GeoJSON                        | Features, geometry, and properties     | Coordinate order, geometry type, and file size                       |
-| CSV with coordinate columns    | Rows with separate location fields     | Which columns hold longitude and latitude; convert values to numbers |
-| Raster tiles                   | Images for portions of the map         | Tile URL, attribution, and available zoom levels                     |
-| Vector tiles                   | Geographic features divided into tiles | Tile source and the style used to draw them                          |
+Vector tiles provide geographic features that a renderer draws using a style.
 
-GeoJSON and vector tiles both carry vector data, but they are different formats and delivery approaches. A local GeoJSON file gives us an easy way to inspect and load our small workshop dataset.
+Tiles divide a map into smaller pieces so the browser can request the pieces needed for the current view and zoom level.
 
-A raster basemap can still support an interactive application. Our own markers, popups, and selection behavior are separate from its background images.
+| Data format or delivery method | What it contains | What to check |
+| --- | --- | --- |
+| GeoJSON | Features, geometry, and properties | Coordinate order, geometry type, and file size |
+| CSV with coordinate columns | Rows with separate location fields | Which columns hold longitude and latitude; convert values to numbers |
+| Raster tiles | Images for portions of the map | Tile URL, attribution, and available zoom levels |
+| Vector tiles | Geographic features divided into tiles | Tile source and the style used to draw them |
 
-Likewise, a vector basemap does not automatically contain our application data. We still add our historic places as another layer.
+GeoJSON and vector tiles can both carry vector data, but they are different formats and delivery approaches.
+
+Our local GeoJSON file is useful for this workshop because it is small, easy to inspect, and easy to reuse in both Leaflet and MapLibre.
+
+A raster basemap can still sit underneath an interactive application. Our markers, popups, sidebar, and selection behavior are separate from the background images.
+
+Likewise, a vector basemap does not automatically contain our application data. We still add the historic places as another data layer.
 
 ---
 
@@ -184,13 +207,13 @@ Likewise, a vector basemap does not automatically contain our application data. 
 
 These are starting points for evaluation, not rules that only one library can satisfy.
 
-| Library        | Consider it when...                                                    | What to evaluate                                                |
-| -------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------- |
-| Leaflet        | You want a straightforward 2D map with markers, popups, and GeoJSON    | Whether its core features and plugins cover your needs          |
-| MapLibre GL JS | You want WebGL rendering and detailed control over vector map styling  | Its source/layer model, style specification, and target devices |
-| OpenLayers     | You need broad support for map sources, formats, or custom projections | Its APIs and configuration for your particular data             |
+| Library | Consider evaluating it when... | What to test in your app |
+| --- | --- | --- |
+| Leaflet | You want a straightforward 2D map with markers, popups, GeoJSON, and ordinary web UI | Features, plugins, interactions, and real data |
+| MapLibre GL JS | WebGL rendering and detailed vector styling are important | Style APIs, devices, source/layer behavior, and real data |
+| OpenLayers | You need broad support for map sources, formats, or custom projections | Required sources, projections, APIs, and configuration |
 
-All three are open source. Your choice still depends on the data, interactions, devices, and services your application needs.
+All three are open source.
 
 For a production project, ask:
 
@@ -199,37 +222,42 @@ For a production project, ask:
 3. How much data will be visible, and how frequently will it change?
 4. Which devices and browsers must work well?
 5. Which services, credentials, attribution, and usage terms apply?
+6. What does performance look like with representative data and devices?
 
-Test performance with representative data and devices. A library name alone does not tell you how fast your application will be.
+A library name alone does not tell you how fast or appropriate an application will be.
 
 ## Why This Workshop Uses Two Libraries
 
-We start with **Leaflet** to build the City Explorer's map, popups, sidebar, selection, and filtering.
+We start with **Leaflet** because it gives us a straightforward way to build the City Explorer's map, popups, sidebar, selection, and filtering.
 
-Later, the **MapLibre Lab** displays the same places using MapLibre GL JS. Reusing the data helps us compare how each library creates a map and renders features.
+Later, the **MapLibre Lab** displays the same places using MapLibre GL JS. Reusing the dataset lets us compare how each library creates a map, supplies data, renders features, handles events, and filters what is visible.
 
-The lab is a separate exercise. Keep your working Leaflet application available as you explore MapLibre.
+The MapLibre lab is a **separate application**. Keep your working Leaflet app intact.
 
-OpenLayers is included in this comparison as another option to evaluate; it does not have a coding lab in this workshop.
+OpenLayers is included in the comparison as another option to evaluate. It does not have a coding lab in this workshop.
 
 ---
 
-# 🛠️ Your Turn - Read a Real Feature
+# 🛠️ Your Turn: Read One Real Feature
 
-In the workshop project, open:
+Before we start Step 01, inspect the actual data we will use throughout the workshop.
+
+In the project, open:
 
 ```text
 data/cities/mount-pocono.geojson
 ```
 
-Find the first feature and answer these questions:
+Find the **first feature**.
 
-1. Which property gives the place's name?
-2. What is its geometry type?
+Identify these four things:
+
+1. Which property contains the place's name?
+2. What is the geometry type?
 3. Which coordinate is its longitude?
-4. Which property could connect this place's marker to its sidebar card?
+4. Which property gives us the stable application ID that can connect a marker to a sidebar card?
 
-Do not edit the dataset. This is a reading exercise.
+Do not edit the file. This is just a quick reading exercise.
 
 ```activity
 {
@@ -244,28 +272,21 @@ Do not edit the dataset. This is a reading exercise.
 
 ---
 
-```activity
-{
-  "type": "reveal",
-  "eyebrow": "💬 Discuss It",
-  "title": "Which Library Would You Evaluate?",
-  "prompt": "One app needs a small set of places with popups and a sidebar. Another needs extensive styling of vector tiles. Which library would you evaluate first for each, and what else would you check?",
-  "buttonLabel": "Reveal one possible answer",
-  "answer": "Leaflet is a reasonable first choice to evaluate for the places app. MapLibre GL JS is a reasonable first choice to evaluate for extensive vector tile styling. For either, check the actual data, interactions, devices, service requirements, and performance. More than one library may meet the requirements."
-}
-```
+# Before We Build
+
+You should now be able to recognize these ideas when they appear in the code:
+
+- **Leaflet or MapLibre** is the mapping library.
+- The **basemap** supplies geographic context.
+- Our **GeoJSON** contains the application places.
+- A GeoJSON feature combines **geometry and properties**.
+- GeoJSON positions use **longitude, latitude** order.
+- Raster tiles are rendered images; vector tiles contain data that a renderer styles.
+- The best library choice depends on your application's actual requirements.
+
+You do not need to memorize these definitions. Keep this page available as a reference.
 
 ---
-
-# Ready to Build?
-
-- [ ] I can distinguish the mapping library, basemap, and application data.
-- [ ] I can find a feature's properties and geometry.
-- [ ] I know GeoJSON uses longitude, latitude order.
-- [ ] I know raster tiles contain images and vector tiles contain data to render.
-- [ ] I can explain why we are starting with Leaflet and later trying MapLibre.
-
-This lesson does not change the application, so it has no code checkpoint. Continue using your prepared `workshop-work` folder.
 
 ## Reference Links
 
@@ -281,4 +302,4 @@ This lesson does not change the application, so it has no code checkpoint. Conti
 
 # Next
 
-Continue to **01 - Build the Map** using the Next button below.
+Continue to **01 - Build the Map** using the **Next** button below.
