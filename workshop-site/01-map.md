@@ -15,6 +15,8 @@ By the end of this section, you'll have:
 
 We are **not loading our historic-place data yet**. That comes in Step 02.
 
+> **During the live workshop:** complete the required **Your Turn** sections and checkpoints first. Sections labeled **Optional** or **Make It Yours** are for extra time if you finish early.
+
 ---
 
 # Starting Point
