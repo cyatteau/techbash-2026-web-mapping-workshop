@@ -13,7 +13,9 @@ By the end of this section, you'll have:
 - Canvas rendering for circle markers
 - a repeatable way to inspect rendering cost and network requests
 
-Allow about **30 to 35 minutes**. Keep the edits small and check each change.
+Plan on about **30 minutes** for the live workshop. Keep the edits small and check each change.
+
+> **During the live workshop:** all six required sections in this lesson are part of the core path. Skip **Make It Yours** unless you finish early. If you fall behind, use `checkpoints/06-polish` so we can protect time for the MapLibre lab.
 
 ---
 
@@ -23,7 +25,9 @@ Start from `checkpoints/05-filtering`, or keep using your working `workshop-work
 
 You should already have a map, loaded places, sidebar cards, synchronized selection, and category filtering.
 
-We will edit **main.js**, **styles.css**, and **index.html**. The application stays in one main JavaScript file. Refactoring is optional later.
+We will edit **main.js**, **styles.css**, and **index.html**.
+
+This is the final required Leaflet step. The application stays in one main JavaScript file. Refactoring is optional later.
 
 ---
 
@@ -36,6 +40,8 @@ We will edit **main.js**, **styles.css**, and **index.html**. The application st
 | Usability | Status messages, keyboard use, motion, and layout | Test failures, keyboard input, and a narrow screen |
 
 Appearance is one part of usability. Users also need to know whether data is loading, whether a request failed, and whether a filter has no results.
+
+We are not adding a new product feature here. We are making the app clearer, more resilient, and easier to inspect.
 
 ---
 
@@ -447,6 +453,8 @@ With data loaded, run this in the browser Console:
 
 This exercise deliberately clears selection before a full redraw. Run it a few times under the same conditions, then compare with `preferCanvas: false` after saving and refreshing.
 
+For the live workshop, a couple of runs is enough. The goal is to practice measuring, not to prove that one renderer always wins.
+
 The number covers synchronous JavaScript work in `render()`. It does not include later browser painting, tile downloads, or the full perceived response time. Use the DevTools Performance panel if you want to inspect those separately.
 
 Restore `preferCanvas: true` for the completed checkpoint.
@@ -489,7 +497,11 @@ As data grows, investigate updating only the changed features, reducing the visi
 - [ ] Temporary bad URLs and categories have been restored.
 - [ ] There are no unexpected application errors in the Console.
 
+At this point, the required Leaflet app is complete.
+
 The recovery checkpoint is **checkpoints/06-polish**. Keep your own `config.js` and data when copying recovery files into `workshop-work`.
+
+Before moving to MapLibre, restore any temporary bad URL, fake category, network throttling, viewport emulation, or renderer changes you used for testing.
 
 ---
 
