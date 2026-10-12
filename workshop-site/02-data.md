@@ -17,6 +17,8 @@ We are still only rendering the map.
 
 The sidebar comes next.
 
+> **During the live workshop:** complete the required **Your Turn** sections and checkpoints first. Sections labeled **Optional** or **Make It Yours** are for extra time if you finish early.
+
 ---
 
 # Starting Point
@@ -37,156 +39,19 @@ main.js
 
 ---
 
-# 👀 Watch First - Meet the Data
+# 👀 Watch First - Follow the Data
 
-Before we load anything, open:
+You already inspected the Mount Pocono GeoJSON in **Mapping Foundations and Library Choice**.
 
-```text
-data/cities/mount-pocono.geojson
-```
+For this step, the important question is no longer just:
 
-You do not need to understand every line.
+> What is inside the file?
 
-Start by looking at the overall structure:
+Now the question is:
 
-```text
-FeatureCollection
-├── type
-├── name
-└── features
-    └── Feature
-        ├── type
-        ├── properties
-        │   ├── id
-        │   ├── name
-        │   ├── category
-        │   ├── description
-        │   ├── address
-        │   ├── nrhpId
-        │   ├── sourceAgency
-        │   ├── listedDate
-        │   └── sourceObjectId
-        └── geometry
-            ├── type
-            └── coordinates
-```
+> How does that data move into our application and onto the map?
 
-A **FeatureCollection** contains an array of geographic **Features**.
-
-Each Feature has two especially important pieces for us:
-
-```text
-properties
-↓
-information about the place
-
-geometry
-↓
-where the place is
-```
-
----
-
-# 👀 Look at One Real Feature
-
-The first Mount Pocono feature looks like this, shortened a little so we can focus on the important parts:
-
-```json
-{
-  "type": "Feature",
-  "properties": {
-    "id": "mp-97000287",
-    "name": "Pocono Manor Historic District",
-    "category": "Culture & Community",
-    "description": "National Register historic district. Source locality: Mt. Pocono, Monroe County, Pennsylvania. Listing recorded April 1997. Map marker represents the listed property area.",
-    "address": "Roughly bounded by PA 314, Lake and Cliff Rds., and Summit Ave., Pocono and Tobyhanna Townships"
-  },
-  "geometry": {
-    "type": "Point",
-    "coordinates": [
-      -75.3714875,
-      41.0976201
-    ]
-  }
-}
-```
-
-The complete dataset contains **21 places across Mount Pocono and surrounding Monroe County**. The first record is Pocono Manor Historic District. Its point represents the district area.
-
-Names, register IDs, and source geometry come from National Park Service records. The five categories are workshop classifications. Listing dates have month precision; the file does not include invented construction years or architects.
-
-The actual feature contains a few additional properties too.
-
-That's normal.
-
-A GeoJSON feature can contain more information than our application chooses to use.
-
-Before continuing, find the first feature in `mount-pocono.geojson`.
-
-Can you identify:
-
-- its `name`
-- its `category`
-- its `address`
-- its `geometry.type`
-- its coordinates
-
-You should find:
-
-```text
-name
-Pocono Manor Historic District
-
-category
-Culture & Community
-
-geometry.type
-Point
-```
-
-The properties tell us about the place.
-
-The geometry tells us where it belongs on the map.
-
----
-
-# 👀 One Coordinate Gotcha
-
-There is one mapping convention worth knowing now.
-
-Leaflet methods such as `setView()` commonly use:
-
-```text
-[latitude, longitude]
-```
-
-GeoJSON stores coordinates as:
-
-```text
-[longitude, latitude]
-```
-
-For the first feature in our file:
-
-```text
-GeoJSON:
-
-[-75.3714875, 41.0976201]
- longitude             latitude
-```
-
-The same location written in the order Leaflet commonly uses would be:
-
-```text
-[41.0976201, -75.3714875]
- latitude          longitude
-```
-
-The order is different.
-
-When we use `L.geoJSON()`, Leaflet handles that conversion for us. <button class="discovery-token" type="button" data-discovery-id="coordinate-conundrum" aria-label="Hidden discovery" title="Hmm...">🧭</button>
-
-Our data flow for this section will be:
+Our data flow will be:
 
 ```text
 GeoJSON file
@@ -195,12 +60,66 @@ fetch()
      ↓
 state.places
      ↓
+renderMap()
+     ↓
 Leaflet
 ```
 
-We'll build that flow one piece at a time.
+The dataset is still:
 
----
+```text
+data/cities/mount-pocono.geojson
+```
+
+It contains a GeoJSON **FeatureCollection** with 21 historic places around Mount Pocono and surrounding Monroe County.
+
+Each feature gives us:
+
+```text
+properties
+↓
+information about the place
+
+geometry
+↓
+where the place belongs
+```
+
+For example, the first feature is **Pocono Manor Historic District**. Its geometry is a Point, and its properties include values such as `id`, `name`, `category`, `description`, and `address`.
+
+We will use those two parts differently:
+
+```text
+geometry
+↓
+marker location
+
+properties
+↓
+popup content
+```
+
+## Coordinate Order Reminder
+
+One quick reminder before we code:
+
+```text
+Leaflet setView()
+[latitude, longitude]
+
+GeoJSON
+[longitude, latitude]
+```
+
+For the first feature:
+
+```text
+GeoJSON:
+[-75.3714875, 41.0976201]
+ longitude        latitude
+```
+
+When we use `L.geoJSON()`, Leaflet understands GeoJSON coordinate order for us. **Do not reverse the coordinates in the dataset.**
 
 ```activity
 {
@@ -219,10 +138,12 @@ We'll build that flow one piece at a time.
     }
   ],
   "correct": "B",
-  "success": "Correct! GeoJSON uses [longitude, latitude]. Leaflet methods such as setView() commonly use the opposite order, but L.geoJSON() handles the GeoJSON conversion for us.",
-  "hint": "Look back at the first feature in mount-pocono.geojson."
+  "success": "Correct! GeoJSON uses [longitude, latitude]. Leaflet methods such as setView() commonly use the opposite order, but L.geoJSON() handles GeoJSON correctly for us.",
+  "hint": "Think back to the feature you inspected in Mapping Foundations."
 }
 ```
+
+---
 
 <!-- OPTIONAL VIDEO SLOT
 Suggested clip: "GeoJSON in 60 Seconds"
@@ -1047,6 +968,8 @@ You should now have:
 - historic-place markers
 - popups with name, category, and description
 - the map automatically fitting to the loaded dataset
+
+Because the dataset includes places around Mount Pocono **and surrounding Monroe County**, the fitted view will be wider than the original Mount Pocono starting view. That's expected.
 
 The complete data flow is:
 
