@@ -14,6 +14,8 @@ By the end of this section, you'll have:
 - popups opening from either view
 - map movement when a card is selected
 
+> **During the live workshop:** complete the required **Your Turn** sections and checkpoint first. Sections labeled **Optional** or **Make It Yours** are for extra time if you finish early.
+
 ---
 
 # Starting Point
@@ -27,12 +29,14 @@ checkpoints/03-ui
 You should already have:
 
 ```text
-map markers + sidebar cards
+21 map markers + 21 sidebar cards
 ```
 
 Clicking a marker opens a popup.
 
 Clicking a card does nothing yet.
+
+That's exactly where we want to be.
 
 In this exercise, we'll edit:
 
@@ -40,6 +44,10 @@ In this exercise, we'll edit:
 main.js
 styles.css
 ```
+
+We are **not loading or fetching any new data** in this step.
+
+We're connecting two existing views of the same features.
 
 ---
 
@@ -60,6 +68,10 @@ marker + card update
 The key idea:
 
 > Shared IDs let different views talk about the same feature.
+
+The same `properties.id` value already exists in our GeoJSON feature and in each sidebar card's `data-place-id`.
+
+Now we'll use that ID to connect the card to its matching Leaflet layer.
 
 ---
 
@@ -124,6 +136,8 @@ const state = {
 
 `null` means nothing is selected yet.
 
+Now selection is part of application state instead of being something that only the map or sidebar knows about.
+
 ---
 
 # 🛠️ Your Turn 2 - Track Leaflet Layers by ID
@@ -150,6 +164,14 @@ We'll use it like:
 ```text
 feature id → Leaflet layer
 ```
+
+For example:
+
+```text
+mp-97000287 → Leaflet circle marker
+```
+
+That gives the application a quick way to find the marker for a selected feature ID.
 
 ---
 
@@ -199,6 +221,18 @@ layer.on("click", () => {
 ```
 
 Then keep your existing popup code below it.
+
+For every GeoJSON feature, we now do two extra things:
+
+```text
+feature ID
+   ↓
+store matching Leaflet layer
+
+marker click
+   ↓
+selectPlace(feature ID)
+```
 
 ---
 
@@ -253,6 +287,8 @@ function renderMap(features) {
 ```
 
 This matters later when filtering changes which features are visible.
+
+Every time the map view is rebuilt, the lookup should represent the layers that actually exist right now.
 
 ---
 
@@ -317,11 +353,23 @@ function selectPlace(id, { moveMap = true } = {}) {
 }
 ```
 
+There is one shared function coordinating the selection.
+
+It:
+
+1. finds the selected Leaflet layer by ID
+2. restores the previous marker style
+3. updates `state.selectedId`
+4. styles and opens the selected marker
+5. updates the matching sidebar card
+6. scrolls that card into view
+7. moves the map only when needed
+
 Save and refresh.
 
 Click different markers.
 
-The selected marker should get larger and its popup should open.
+The selected marker should get larger, its popup should open, and the matching card should update.
 
 ---
 
@@ -336,6 +384,10 @@ In `styles.css`, add:
   outline-offset: 2px;
 }
 ```
+
+The card already has the right ID.
+
+Now it also has a visible selected state.
 
 ---
 
@@ -359,6 +411,8 @@ placeList.addEventListener("click", (event) => {
 });
 ```
 
+Because the cards are real `<button>` elements, keyboard activation with **Enter** or **Space** also produces the click behavior we need. We do not need a separate keyboard event handler for basic card activation.
+
 Save and refresh.
 
 ---
@@ -370,18 +424,36 @@ Test both directions.
 ## Marker click
 
 ```text
-marker → selected marker → popup → matching card
+marker
+  ↓
+selectPlace(id, { moveMap: false })
+  ↓
+selected marker + popup + matching card
 ```
 
-The map should not fly because you already clicked the location.
+The map should not fly because the user already clicked that location.
 
 ## Card click
 
 ```text
-card → matching marker → popup → map flies to place
+card
+  ↓
+selectPlace(id)
+  ↓
+matching marker + popup + selected card
+  ↓
+map flies to place
 ```
 
-Now the map and sidebar are connected.
+Now the map and sidebar are connected through the same selection state.
+
+Before moving on, test at least:
+
+- one marker click
+- a different card click
+- another marker click
+
+Confirm that the previous marker and card return to their normal state each time.
 
 ---
 
@@ -470,6 +542,7 @@ Verify:
 - [ ] Clicking a card highlights the matching marker.
 - [ ] Clicking a card opens the marker popup.
 - [ ] Clicking a card moves the map.
+- [ ] Enter or Space can activate a focused card.
 - [ ] Only one marker appears selected at a time.
 - [ ] Only one card appears selected at a time.
 - [ ] There are no unexpected errors from your application code.
