@@ -4,8 +4,6 @@ You have completed the required TechBash workshop path.
 
 You built a Leaflet City Explorer with real historic-place data around Mount Pocono and Monroe County, then displayed the same data in a separate MapLibre app.
 
-> **For the live workshop:** keep this wrap-up short. Use the library-choice activity, reinforce the final mental model, point out the optional follow-up work, and leave time for questions.
-
 ---
 
 ## What You Built
