@@ -1047,3 +1047,9 @@ body {
 .discovery-toast.is-prize {
   outline: 4px solid #f4c542;
 }
+
+
+/* Hide unused Explorer Passport discoveries */
+.discovery-token {
+  display: none !important;
+}
