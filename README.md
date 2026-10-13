@@ -5,14 +5,22 @@ A hands-on workshop with [Courtney Yatteau](https://github.com/cyatteau), Develo
 
 Build an interactive City Explorer using HTML, CSS, vanilla JavaScript, Leaflet, Esri Leaflet, GeoJSON, and MapLibre GL JS. Start with a map, connect geographic data to a sidebar, and use shared application state to coordinate selection and filtering. Improve styling, performance, and usability, then reuse the same data in a separate MapLibre lab. Refactoring and favorites are optional.
 
-**The map is one view of your application state, not the whole application.**
+> **The map is one view of your application state, not the whole application.**
 
-This repository includes the workshop website, starter code, runnable checkpoints, prepared datasets, and optional extensions.
+This repository includes the workshop website, starter code, runnable checkpoints, prepared datasets, optional extensions, and the workshop slides.
+
+## Workshop slides
+
+The workshop slides introduce the concepts and guide the live discussion. The workshop website contains the full step-by-step instructions, code, checkpoints, and recovery guidance.
+
+- **Slides:** [TechBash 2026 workshop slides (PDF)](https://github.com/cyatteau/techbash-2026-web-mapping-workshop/blob/main/Slides.pdf)
+- **Workshop website:** [Open the workshop instructions](workshop-site/START-HERE.md)
+
+If you attended the live workshop, use the slides for the concepts and discussion, and use the workshop website as your lab manual.
 
 ## Start here
 
 1. **Download the project:** Download the TechBash workshop ZIP provided by the instructor and extract it. If you already have a copy named `techbash2026-map-workshop`, use that project folder.
-
 2. Open the **full project folder** in your editor.
 3. Copy `checkpoints/00-start` to a new folder named `workshop-work` **at the project root**, alongside `checkpoints`, `data`, and `workshop-site`.
 4. Inside `workshop-work`, copy `config.example.js` and name the copy `config.js`.
@@ -30,7 +38,11 @@ This repository includes the workshop website, starter code, runnable checkpoint
    python -m http.server 8000
    ```
 
-   If your system uses `python3`, run `python3 -m http.server 8000` instead.
+   If your system uses `python3`, run:
+
+   ```bash
+   python3 -m http.server 8000
+   ```
 
 7. With the Python server above, open:
 
@@ -49,7 +61,7 @@ You can also [read Start Here on GitHub](workshop-site/START-HERE.md), but the w
 - A local static web server, such as VS Code Live Server or Python's HTTP server.
 - Basic familiarity with HTML, CSS, and JavaScript.
 - Internet access for hosted libraries and ArcGIS services.
-- An ArcGIS API key, provided by the instructor during the workshop.
+- An ArcGIS API key, provided by the instructor during the live workshop.
 
 No npm installation, bundler, or JavaScript framework is required. Attendees do not need their own ArcGIS account for the instructor-led session.
 
@@ -61,9 +73,35 @@ The **ArcGIS basemap is part of the core workshop**. Lesson 01 first introduces 
 
 The separate MapLibre lab also uses an ArcGIS basemap through the MapLibre ArcGIS plugin.
 
-The instructor shares a temporary workshop key separately. Keep it in your local `config.js`, rather than embedding it in `main.js` or `js/map.js`. Do not publish the workshop key in commits, documentation, or shared AI prompts.
+The instructor shares a temporary workshop key separately. Keep it in your local `config.js`, rather than embedding it in `main.js` or `js/map.js`.
 
-When continuing after workshop access ends, use your own ArcGIS credentials with the permissions needed for your app. The optional geocoding extension requires geocoding permission in addition to basemap access.
+**Do not publish the workshop key in commits, documentation, screenshots, or shared AI prompts.**
+
+### Continue after the workshop with your own key
+
+The temporary workshop key is intended only for the live workshop. To continue using the ArcGIS basemap or other ArcGIS location services afterward, create your own ArcGIS Location Platform account and API key.
+
+1. [Sign up for ArcGIS Location Platform](https://location.arcgis.com/) and sign in.
+2. From the ArcGIS Location Platform dashboard, open **My portal**.
+3. Create **API key credentials** in your portal.
+4. Assign the privileges needed by the services your application uses.
+5. Generate the API key.
+6. Copy your key into your local `config.js`:
+
+   ```js
+   window.APP_CONFIG = {
+     arcgisApiKey: "YOUR_API_KEY",
+   };
+   ```
+
+For the core workshop, your key needs access to the ArcGIS basemap used by the Leaflet and MapLibre examples.
+
+If you try the optional geocoding extension, your key also needs the appropriate geocoding privilege.
+
+- **ArcGIS Location Platform:** <https://location.arcgis.com/>
+- **Create an API key tutorial:** <https://developers.arcgis.com/documentation/security-and-authentication/api-key-authentication/tutorials/create-an-api-key/location-platform/>
+
+For production applications, review your API key privileges, expiration, and referrer restrictions before publishing.
 
 ## Required workshop path
 
@@ -148,6 +186,7 @@ For example, after a change to filtering, check that the map, list, count, and s
 
 | Path | Purpose |
 | --- | --- |
+| `Slides.pdf` | Workshop presentation slides |
 | `workshop-site/` | Instruction website, lesson Markdown, activities, and navigation |
 | `checkpoints/` | Starter app, required Leaflet checkpoints, and optional module/favorites checkpoints |
 | `data/` | Shared geographic datasets |
